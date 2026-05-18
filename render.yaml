@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: alternative-credit-api
+    runtime: docker
+    rootDir: backend
+    plan: starter
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: API_PREFIX
+        value: /api
+      - key: AUTO_CREATE_TABLES
+        value: true
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
