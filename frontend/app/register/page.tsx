@@ -28,8 +28,9 @@ export default function RegisterPage() {
     setError(null);
     try {
       await registerUser(values);
-    } catch {
-      setError("Unable to create this account.");
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : "Unable to create this account.");
     }
   }
 

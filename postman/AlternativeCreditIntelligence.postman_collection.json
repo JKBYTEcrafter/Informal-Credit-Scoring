@@ -11,6 +11,10 @@
     {
       "key": "token",
       "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": "1"
     }
   ],
   "item": [
@@ -95,6 +99,79 @@
           }
         ],
         "url": "{{base_url}}/dashboard/summary"
+      }
+    },
+    {
+      "name": "Credit Score",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/credit-score/{{user_id}}"
+      }
+    },
+    {
+      "name": "Risk Analysis",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/risk-analysis/{{user_id}}"
+      }
+    },
+    {
+      "name": "Financial Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/financial-health/{{user_id}}"
+      }
+    },
+    {
+      "name": "Retrain Model",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/ml/retrain-model",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"n_samples\": 1200,\n  \"include_optional_models\": true,\n  \"tune_hyperparameters\": false\n}"
+        }
+      }
+    },
+    {
+      "name": "Model Metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/ml/model-metrics"
       }
     },
     {
