@@ -29,11 +29,18 @@ DATABASE_URL=<Neon or Supabase PostgreSQL connection string>
 JWT_SECRET_KEY=<long random secret>
 BACKEND_CORS_ORIGINS=https://<your-vercel-domain>
 AUTO_CREATE_TABLES=True
+ML_MODEL_DIR=app/ml/artifacts
+ML_MODEL_VERSION=sprint2-credit-score-v1
+ML_SYNTHETIC_TRAINING_ROWS=1200
+ML_RANDOM_SEED=42
 ```
 
 5. Deploy.
+6. Train the initial model through `POST /api/ml/retrain-model` or with `python scripts/train_credit_model.py --samples 1200` during a release job.
 
-Production note: `AUTO_CREATE_TABLES=True` is acceptable for this Sprint 1 MVP, but Alembic migrations should replace it before regulated production use.
+Production note: `AUTO_CREATE_TABLES=True` is acceptable for this Sprint 2 MVP, but Alembic migrations should replace it before regulated production use.
+
+ML artifact note: Render's filesystem is ephemeral across deploys. For production, persist `ML_MODEL_DIR` to durable storage or move model artifacts to object storage/model registry infrastructure.
 
 ## Frontend on Vercel
 
@@ -62,3 +69,6 @@ NEXT_PUBLIC_API_URL=https://<your-render-api-domain>/api
 - Add rate limiting for auth and upload endpoints.
 - Add audit trails for CSV ingestion.
 - Add object storage for original uploads if compliance requires retention.
+- Restrict ML retraining endpoints to admin or service accounts.
+- Move model artifacts to a registry with version promotion and rollback.
+- Add monitoring for score drift, feature drift, and inference latency.

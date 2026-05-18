@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
     AUTO_CREATE_TABLES: bool = True
 
+    ML_MODEL_DIR: str = "app/ml/artifacts"
+    ML_MODEL_VERSION: str = "sprint2-credit-score-v1"
+    ML_SYNTHETIC_TRAINING_ROWS: int = 1200
+    ML_RANDOM_SEED: int = 42
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

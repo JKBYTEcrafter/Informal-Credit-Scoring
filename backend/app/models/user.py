@@ -8,6 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.base import Base
 
 if TYPE_CHECKING:
+    from app.models.credit_score import CreditScore
+    from app.models.financial_feature import FinancialFeature
     from app.models.transaction import Transaction
 
 
@@ -31,6 +33,16 @@ class User(Base):
     )
 
     transactions: Mapped[list["Transaction"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    credit_scores: Mapped[list["CreditScore"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    financial_features: Mapped[list["FinancialFeature"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,

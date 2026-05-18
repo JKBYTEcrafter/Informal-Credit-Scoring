@@ -65,17 +65,17 @@ class TransactionService:
         missing_columns = REQUIRED_COLUMNS - set(dataframe.columns)
         if missing_columns:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail=f"Missing required CSV columns: {', '.join(sorted(missing_columns))}",
             )
         if dataframe.empty:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail="CSV must contain at least one transaction row",
             )
         if len(dataframe.index) > MAX_UPLOAD_ROWS:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail=f"CSV cannot contain more than {MAX_UPLOAD_ROWS} rows",
             )
 
@@ -97,7 +97,7 @@ class TransactionService:
         if not invalid_rows.empty:
             row_numbers = [str(index + 2) for index in invalid_rows.index[:10]]
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail=f"Invalid transaction data at CSV row(s): {', '.join(row_numbers)}",
             )
 

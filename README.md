@@ -1,13 +1,14 @@
 # Alternative Credit Intelligence Platform
 
-Sprint 1 builds the reliable data infrastructure for an India-focused alternative credit platform. It includes JWT authentication, CSV transaction ingestion, PostgreSQL persistence, dashboard APIs, a protected Next.js dashboard, tests, Docker, and deployment guides.
+Sprint 1 built the reliable data infrastructure for an India-focused alternative credit platform. Sprint 2 adds a financial intelligence and credit scoring engine that turns transaction behavior into explainable alternative credit risk signals.
 
-This sprint intentionally does not implement ML credit scoring yet. The codebase is structured so later sprints can add scoring, fraud detection, streaming analytics, explainability, and graph intelligence without rewriting the foundation.
+The platform now supports feature engineering, scoring, risk classification, model training, explainability, evaluation metrics, and advanced dashboard analytics while preserving a modular architecture for future fraud detection, streaming analytics, recommendations, and graph intelligence.
 
 ## Stack
 
 - Frontend: Next.js, React, TailwindCSS, Axios, React Hook Form, Recharts
-- Backend: FastAPI, SQLAlchemy, PostgreSQL, JWT, Passlib/Bcrypt, Pandas, Python Multipart
+- Backend: FastAPI, SQLAlchemy, PostgreSQL, JWT, Bcrypt, Pandas, NumPy, Python Multipart
+- Machine Learning: Scikit-learn, XGBoost, LightGBM, CatBoost, SHAP, Joblib
 - Testing: Pytest, FastAPI TestClient, Postman collection
 - Deployment: Vercel, Render, Neon or Supabase PostgreSQL
 
@@ -20,6 +21,15 @@ backend/
     models/
     schemas/
     services/
+    ml/
+      feature_engineering/
+      preprocessing/
+      training/
+      inference/
+      explainability/
+      evaluation/
+      models/
+    analytics/
     database/
     middleware/
     utils/
@@ -89,6 +99,11 @@ pytest
 | POST | `/api/transactions/upload` | Upload transaction CSV |
 | GET | `/api/transactions` | Fetch authenticated user's transactions |
 | GET | `/api/dashboard/summary` | Fetch dashboard metrics |
+| GET | `/api/credit-score/{user_id}` | Generate and persist alternative credit score |
+| GET | `/api/risk-analysis/{user_id}` | Fetch risk band and explanatory risk drivers |
+| GET | `/api/financial-health/{user_id}` | Fetch financial features, trends, categories, and behavioral indicators |
+| POST | `/api/ml/retrain-model` | Train and persist the scoring model |
+| GET | `/api/ml/model-metrics` | Fetch model evaluation metrics and training metadata |
 | GET | `/api/health` | Health check |
 
 ## CSV Format
@@ -105,6 +120,39 @@ amount,type,merchant,category,timestamp
 - Total expenses: sum of `debit` transactions
 - Savings ratio: `(income - expenses) / income`
 - Transaction count: number of stored transactions
+- Alternative credit score: 300 to 900
+- Risk level: Low Risk, Medium Risk, or High Risk
+- Behavioral indicators: financial discipline, impulsive spending, transaction regularity, recurring income confidence
+- Explainability: local explanations and feature importance
+- Financial health analytics: income trends, spending trends, monthly cash flow, and category distribution
+
+## Sprint 2 ML Engine
+
+Feature engineering generates the following production-oriented signals:
+
+- Average monthly income and spending
+- Savings and spending-to-income ratios
+- Transaction frequency and regularity
+- Income stability and variance
+- Spending volatility and expense variance
+- Merchant diversity and category distribution
+- Cash-flow consistency and monthly growth trend
+- Weekend and high-risk spending frequency
+- Financial discipline, impulsive spending, and recurring income confidence
+
+The model pipeline includes data cleaning, missing value handling, outlier clipping, standard scaling, min-max normalization, categorical encoding, train/validation split, cross-validation, optional hyperparameter tuning, model comparison, evaluation metrics, and joblib persistence.
+
+Train from the backend directory:
+
+```bash
+python scripts/train_credit_model.py --samples 1200
+```
+
+Train only the lightweight baseline:
+
+```bash
+python scripts/train_credit_model.py --skip-optional-models
+```
 
 ## Agile SDLC
 
@@ -138,11 +186,12 @@ See [docs/API.md](docs/API.md), or run the backend and open `/docs`.
 
 ## Future Sprint Expansion
 
-Recommended Sprint 2 direction:
+Recommended Sprint 3 direction:
 
 - Alembic migrations
+- Role-based ML operations controls
 - Transaction categorization improvements
-- Feature engineering layer
-- Baseline explainable credit score
+- Fraud detection and anomaly scoring
+- Streaming inference pipeline
 - Risk event audit log
 - Upload observability and ingestion status tracking

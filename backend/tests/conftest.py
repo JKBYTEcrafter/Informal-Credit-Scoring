@@ -9,6 +9,7 @@ from sqlalchemy.pool import StaticPool
 
 os.environ["AUTO_CREATE_TABLES"] = "False"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key"
+os.environ["ML_MODEL_DIR"] = "C:/tmp/alternative_credit_test_models"
 
 from app.database.base import Base  # noqa: E402
 from app.database.session import get_db  # noqa: E402

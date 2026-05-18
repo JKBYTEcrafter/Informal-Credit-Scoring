@@ -24,6 +24,9 @@ frontend/.env.local
 *.db
 *.sqlite
 *.sqlite3
+*.joblib
+backend/app/ml/artifacts/
+backend/pytest_output.txt
 
 # OS and editors
 .DS_Store

@@ -2,37 +2,84 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { AIExplanationPanel } from "@/components/AIExplanationPanel";
 import { AppShell } from "@/components/AppShell";
 import { CSVUpload } from "@/components/CSVUpload";
+import { CreditScoreCard } from "@/components/CreditScoreCard";
 import { DashboardSummaryCards } from "@/components/DashboardSummaryCards";
+import { FeatureImportanceChart } from "@/components/FeatureImportanceChart";
+import { FinancialHealthMeter } from "@/components/FinancialHealthMeter";
+import { ModelMetricsPanel } from "@/components/ModelMetricsPanel";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RiskGauge } from "@/components/RiskGauge";
+import { SpendingAnalyticsCharts } from "@/components/SpendingAnalyticsCharts";
 import { TransactionChart } from "@/components/TransactionChart";
 import { TransactionsTable } from "@/components/TransactionsTable";
+import { useAuth } from "@/hooks/useAuth";
 import { fetchDashboardSummary } from "@/services/dashboard";
+import {
+  fetchCreditScore,
+  fetchFinancialHealth,
+  fetchModelMetrics,
+  fetchRiskAnalysis,
+} from "@/services/intelligence";
 import { fetchTransactions } from "@/services/transactions";
-import type { DashboardSummary, Transaction } from "@/utils/types";
+import type {
+  CreditScoreResponse,
+  DashboardSummary,
+  FinancialHealthResponse,
+  ModelMetricsResponse,
+  RiskAnalysisResponse,
+  Transaction,
+} from "@/utils/types";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [creditScore, setCreditScore] = useState<CreditScoreResponse | null>(null);
+  const [riskAnalysis, setRiskAnalysis] = useState<RiskAnalysisResponse | null>(null);
+  const [financialHealth, setFinancialHealth] = useState<FinancialHealthResponse | null>(null);
+  const [modelMetrics, setModelMetrics] = useState<ModelMetricsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadDashboard = useCallback(async () => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     setError(null);
     try {
-      const [summaryResponse, transactionResponse] = await Promise.all([
+      const [
+        summaryResponse,
+        transactionResponse,
+        creditScoreResponse,
+        riskAnalysisResponse,
+        financialHealthResponse,
+        modelMetricsResponse,
+      ] = await Promise.all([
         fetchDashboardSummary(),
         fetchTransactions(),
+        fetchCreditScore(user.id),
+        fetchRiskAnalysis(user.id),
+        fetchFinancialHealth(user.id),
+        fetchModelMetrics(),
       ]);
       setSummary(summaryResponse);
       setTransactions(transactionResponse);
+      setCreditScore(creditScoreResponse);
+      setRiskAnalysis(riskAnalysisResponse);
+      setFinancialHealth(financialHealthResponse);
+      setModelMetrics(modelMetricsResponse);
     } catch {
       setError("Unable to load dashboard data.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     void loadDashboard();
@@ -44,10 +91,10 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase text-mint">Sprint 1 MVP</p>
-              <h1 className="text-2xl font-semibold text-ink">Credit data dashboard</h1>
+              <p className="text-sm font-semibold uppercase text-mint">Sprint 2 intelligence</p>
+              <h1 className="text-2xl font-semibold text-ink">Financial health dashboard</h1>
             </div>
-            <p className="text-sm text-slate-600">Reliable data infrastructure</p>
+            <p className="text-sm text-slate-600">Alternative credit scoring engine</p>
           </div>
 
           {error && (
@@ -58,9 +105,33 @@ export default function DashboardPage() {
 
           <DashboardSummaryCards summary={summary} isLoading={isLoading} />
 
+          <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+            <CreditScoreCard creditScore={creditScore} isLoading={isLoading} />
+            <RiskGauge creditScore={creditScore} isLoading={isLoading} />
+          </div>
+
           <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
             <CSVUpload onUploadComplete={loadDashboard} />
             <TransactionChart summary={summary} isLoading={isLoading} />
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+            <FinancialHealthMeter health={financialHealth} isLoading={isLoading} />
+            <AIExplanationPanel
+              riskAnalysis={riskAnalysis}
+              explanations={creditScore?.explanations ?? []}
+              isLoading={isLoading}
+            />
+          </div>
+
+          <SpendingAnalyticsCharts health={financialHealth} isLoading={isLoading} />
+
+          <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+            <FeatureImportanceChart
+              importance={creditScore?.feature_importance ?? []}
+              isLoading={isLoading}
+            />
+            <ModelMetricsPanel metrics={modelMetrics} isLoading={isLoading} />
           </div>
 
           <TransactionsTable transactions={transactions} isLoading={isLoading} />
