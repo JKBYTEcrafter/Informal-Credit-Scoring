@@ -52,17 +52,17 @@ import type {
   Transaction,
 } from "@/utils/types";
 
-// ---- Section Header ----
-function SectionHeader({ label, title }: { label: string; title: string }) {
+// ---- Premium Corporate Section Header ----
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="mb-1">
-      <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">{label}</p>
-      <h2 className="text-base font-semibold text-white">{title}</h2>
+    <div className="mb-4 border-l-4 border-indigo-500 pl-4 py-0.5">
+      <h2 className="text-base font-bold text-white tracking-tight">{title}</h2>
+      {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
     </div>
   );
 }
 
-// ---- Panel Card ----
+// ---- Premium Glassmorphic Panel Card ----
 function Panel({
   children,
   className = "",
@@ -72,7 +72,7 @@ function Panel({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-slate-700/40 bg-slate-900/60 p-6 shadow-xl backdrop-blur-sm ${className}`}
+      className={`rounded-2xl border border-slate-800/50 bg-[#0d1220]/60 p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-700/60 ${className}`}
     >
       {children}
     </div>
@@ -82,7 +82,7 @@ function Panel({
 export default function DashboardPage() {
   const { user } = useAuth();
 
-  // Sprint 2 state
+  // Dashboard state variables
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [creditScore, setCreditScore] = useState<CreditScoreResponse | null>(null);
@@ -90,7 +90,7 @@ export default function DashboardPage() {
   const [financialHealth, setFinancialHealth] = useState<FinancialHealthResponse | null>(null);
   const [modelMetrics, setModelMetrics] = useState<ModelMetricsResponse | null>(null);
 
-  // Sprint 3 state
+  // Advanced explainable AI state
   const [explainability, setExplainability] = useState<ExplainabilityResponse | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendationsResponse | null>(null);
   const [behavioral, setBehavioral] = useState<BehavioralAnalysisResponse | null>(null);
@@ -111,7 +111,7 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      // Sprint 2: parallel fetch
+      // Fetch Core financial metrics
       const [
         summaryRes,
         transactionRes,
@@ -135,7 +135,7 @@ export default function DashboardPage() {
       setFinancialHealth(financialHealthRes);
       setModelMetrics(modelMetricsRes);
 
-      // Sprint 3: parallel fetch (non-blocking — errors soft-fail individually)
+      // Fetch advanced algorithmic indicators
       const [
         explainabilityRes,
         recommendationsRes,
@@ -172,46 +172,46 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <AppShell>
-        <div
-          className="flex flex-col gap-8"
-          style={{ background: "linear-gradient(180deg, #0f172a 0%, #0a0f1e 100%)", minHeight: "100vh" }}
-        >
-          {/* Page header */}
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-8 text-slate-100">
+          
+          {/* Dashboard Premium Title Block */}
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-800/60 pb-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">
-                Alternative Credit Intelligence Platform
-              </p>
-              <h1 className="text-2xl font-bold text-white">Financial Intelligence Dashboard</h1>
-              <p className="mt-0.5 text-sm text-slate-400">
-                Sprint 3 · Explainable AI · Behavioral Analytics · Personalized Insights
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
+                Enterprise Credit Intelligence Suite
+              </div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-white mt-2">
+                Financial Intelligence Dashboard
+              </h1>
+              <p className="text-sm text-slate-400 mt-1">
+                Real-time explainable credit scoring, transactional analytics, and algorithmic recommendation feeds.
               </p>
             </div>
             {user && (
-              <p className="text-sm text-slate-500">
-                Welcome, <span className="font-medium text-slate-300">{user.name}</span>
-              </p>
+              <div className="flex items-center gap-2 rounded-lg bg-slate-900/60 border border-slate-800 px-4 py-2 text-sm text-slate-400">
+                <span>Welcome back,</span>
+                <span className="font-semibold text-white">{user.name}</span>
+              </div>
             )}
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-md">
               {error}
             </div>
           )}
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 3 — AI Intelligence Summary Banner
-          ═══════════════════════════════════════════════════════════ */}
+          {/* AI Intelligence Summary Banner */}
           <section>
             <AdvancedSummaryBanner summary={advancedSummary} isLoading={isLoading} />
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 2 — Core Score + Dashboard Cards
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Core Credit Assessment */}
           <section className="space-y-6">
-            <SectionHeader label="Sprint 2 · Credit Engine" title="Credit Score & Financial Overview" />
+            <SectionHeader 
+              title="Core Credit Assessment" 
+              subtitle="Real-time credit score analysis and parsed statement metrics" 
+            />
             <DashboardSummaryCards summary={summary} isLoading={isLoading} />
 
             <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
@@ -224,11 +224,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 3 — SHAP Explainability + AI Financial Story
-          ═══════════════════════════════════════════════════════════ */}
+          {/* SHAP Explainability + AI Financial Story */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 3 · Explainable AI" title="Why You Received This Score" />
+            <SectionHeader 
+              title="Explainable AI (XAI) Engine" 
+              subtitle="SHAP feature attribution parameters and automated narrative insights" 
+            />
             <div className="grid gap-6 xl:grid-cols-2">
               <Panel>
                 <h3 className="mb-4 text-sm font-semibold text-slate-200">
@@ -251,11 +252,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 3 — Financial Health 6-Dimension Radar
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Financial Health 6-Dimension Radar */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 3 · Financial Health" title="Six-Dimension Health Assessment" />
+            <SectionHeader 
+              title="Multi-Dimensional Health Index" 
+              subtitle="Six pillars of financial health and historical risk trajectories" 
+            />
             <div className="grid gap-6 xl:grid-cols-[400px_1fr]">
               <Panel>
                 <h3 className="mb-5 text-sm font-semibold text-slate-200">
@@ -284,11 +286,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 3 — Behavioral Analysis + Recommendations
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Behavioral Analysis + Recommendations */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 3 · Behavioral Intelligence" title="Spending Patterns & Personalized Recommendations" />
+            <SectionHeader 
+              title="Behavioral Intelligence & Recommendations" 
+              subtitle="Algorithmic spender profiling and priority-ranked recommendations" 
+            />
             <div className="grid gap-6 xl:grid-cols-2">
               <Panel>
                 <h3 className="mb-4 text-sm font-semibold text-slate-200">
@@ -309,11 +312,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 2 — Upload + Transaction Chart
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Upload + Transaction Chart */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 1 · Data Ingestion" title="Upload Transactions & Cash Flow" />
+            <SectionHeader 
+              title="Ingestion Engine & Cash Flow Dynamics" 
+              subtitle="Secure statement parsing and daily inflow vs outflow curves" 
+            />
             <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
               <Panel>
                 <CSVUpload onUploadComplete={loadDashboard} />
@@ -324,26 +328,28 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 2 — Financial Health Meter + Spending Analytics
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Financial Health Meter + Spending Analytics */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 2 · Analytics" title="Spending Intelligence & Financial Health" />
+            <SectionHeader 
+              title="Interactive Spending Intelligence" 
+              subtitle="Category distributions and transactional indicators" 
+            />
             <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
               <Panel>
                 <FinancialHealthMeter health={financialHealth} isLoading={isLoading} />
               </Panel>
-              <div className="rounded-2xl border border-slate-700/40 bg-slate-900/60">
+              <div className="rounded-2xl border border-slate-800/50 bg-[#0d1220]/60">
                 <SpendingAnalyticsCharts health={financialHealth} isLoading={isLoading} />
               </div>
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 2 — Feature Importance + Model Metrics + MLOps
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Feature Importance + Model Metrics + MLOps */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 2 · MLOps" title="Model Analytics & Feature Importance" />
+            <SectionHeader 
+              title="Model Performance & MLOps Analytics" 
+              subtitle="Global feature importance and training diagnostics" 
+            />
             <div className="grid gap-6 xl:grid-cols-2">
               <Panel>
                 <FeatureImportanceChart
@@ -357,11 +363,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════════════════════
-              SPRINT 1 — Transactions Table
-          ═══════════════════════════════════════════════════════════ */}
+          {/* Transactions Table */}
           <section className="space-y-4">
-            <SectionHeader label="Sprint 1 · Ledger" title="Transaction History" />
+            <SectionHeader 
+              title="Ingested Transactions Ledger" 
+              subtitle="Fully categorized ledger from parsed statements" 
+            />
             <Panel>
               <TransactionsTable transactions={transactions} isLoading={isLoading} />
             </Panel>

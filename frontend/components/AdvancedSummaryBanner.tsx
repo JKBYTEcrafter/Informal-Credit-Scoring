@@ -92,7 +92,7 @@ export function AdvancedSummaryBanner({
       {/* Headline */}
       <div className="border-b border-slate-700/40 px-6 py-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">
-          Sprint 3 · AI Intelligence Dashboard
+          Predictive AI Profile Summary
         </p>
         <h2 className="mt-0.5 text-lg font-bold text-white">
           {summary.financial_story_headline}
