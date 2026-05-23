@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import get_settings
 from app.database.session import init_db
 from app.middleware.security_headers import SecurityHeadersMiddleware
-from app.routes import auth, credit_intelligence, dashboard, health, ml, transactions
+from app.routes import advanced_intelligence, auth, credit_intelligence, dashboard, health, ml, transactions
 
 
 def create_app() -> FastAPI:
@@ -20,8 +20,12 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title=settings.APP_NAME,
-        version="0.1.0",
-        description="Sprint 1 reliable data infrastructure API for India-focused alternative credit intelligence.",
+        version="0.3.0",
+        description=(
+            "Sprint 3: Explainable AI & Advanced Financial Intelligence Dashboard. "
+            "Production-grade fintech platform with SHAP explainability, behavioral analytics, "
+            "personalized recommendations, financial storytelling, and advanced visualization APIs."
+        ),
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
@@ -43,10 +47,11 @@ def create_app() -> FastAPI:
     app.include_router(dashboard.router, prefix=settings.API_PREFIX)
     app.include_router(credit_intelligence.router, prefix=settings.API_PREFIX)
     app.include_router(ml.router, prefix=settings.API_PREFIX)
+    app.include_router(advanced_intelligence.router, prefix=settings.API_PREFIX)
 
     @app.get("/")
     def root() -> dict[str, str]:
-        return {"message": settings.APP_NAME, "docs": "/docs"}
+        return {"message": settings.APP_NAME, "version": "0.3.0", "docs": "/docs"}
 
     return app
 

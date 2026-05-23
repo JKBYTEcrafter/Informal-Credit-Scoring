@@ -8,8 +8,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.base import Base
 
 if TYPE_CHECKING:
+    from app.models.behavioral_insight import BehavioralInsight
     from app.models.credit_score import CreditScore
     from app.models.financial_feature import FinancialFeature
+    from app.models.financial_health_report import FinancialHealthReport
+    from app.models.recommendation import Recommendation
     from app.models.transaction import Transaction
 
 
@@ -43,6 +46,21 @@ class User(Base):
         passive_deletes=True,
     )
     financial_features: Mapped[list["FinancialFeature"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    financial_health_reports: Mapped[list["FinancialHealthReport"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    recommendations: Mapped[list["Recommendation"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    behavioral_insights: Mapped[list["BehavioralInsight"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,

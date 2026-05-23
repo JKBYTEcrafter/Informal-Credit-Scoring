@@ -32,6 +32,14 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    from app.models import credit_score, financial_feature, transaction, user  # noqa: F401
+    from app.models import (  # noqa: F401
+        behavioral_insight,
+        credit_score,
+        financial_feature,
+        financial_health_report,
+        recommendation,
+        transaction,
+        user,
+    )
 
     Base.metadata.create_all(bind=engine)
