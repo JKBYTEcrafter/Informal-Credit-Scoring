@@ -45,13 +45,13 @@ class ExplainabilityAPIService:
         # Fallback from existing explanations if no SHAP
         if not positive:
             positive = [
-                e["feature"].replace("_", " ").title()
-                for e in [{"feature": ex.feature} for ex in score_result.explanations if ex.impact == "positive"]
+                ex["feature"].replace("_", " ").title()
+                for ex in score_result.explanations if ex.get("impact") == "positive"
             ][:3]
         if not negative:
             negative = [
-                e["feature"].replace("_", " ").title()
-                for e in [{"feature": ex.feature} for ex in score_result.explanations if ex.impact == "negative"]
+                ex["feature"].replace("_", " ").title()
+                for ex in score_result.explanations if ex.get("impact") == "negative"
             ][:3]
 
         return ExplainabilityResponse(

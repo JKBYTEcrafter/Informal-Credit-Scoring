@@ -24,6 +24,11 @@ class OutlierClipper(BaseEstimator, TransformerMixin):
         array = np.asarray(x_values, dtype=float)
         return np.clip(array, self.lower_bounds_, self.upper_bounds_)
 
+    def get_feature_names_out(self, input_features=None):
+        if input_features is None:
+            return np.array(["clipper"], dtype=object)
+        return np.asarray(input_features, dtype=object)
+
 
 class FinancialPreprocessor:
     def __init__(self, numeric_features: list[str], categorical_features: list[str]):
