@@ -201,6 +201,37 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Action Required Banner when database is empty */}
+          {!isLoading && transactions.length === 0 && (
+            <div className="overflow-hidden rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-slate-900/50 to-indigo-950/40 p-6 md:p-8 shadow-2xl relative">
+              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="space-y-2 max-w-3xl">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400 border border-amber-500/20">
+                    ⚠️ Awaiting Statement Upload
+                  </div>
+                  <h2 className="text-xl font-bold text-white tracking-tight">
+                    Assessment calculated on heuristic baseline (Score: 300)
+                  </h2>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    To compute a credible, highly accurate alternative credit intelligence profile using our advanced machine learning models, 
+                    please ingest transactional data by uploading your bank statement below. 
+                    This will automatically build your 6-dimension health radar, generate custom spender profiles, and write your AI financial narrative.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    document.getElementById("ingestion-engine")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-6 py-3 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 hover:scale-[1.02]"
+                >
+                  🚀 Ingest Bank Statement
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* AI Intelligence Summary Banner */}
           <section>
             <AdvancedSummaryBanner summary={advancedSummary} isLoading={isLoading} />
@@ -313,7 +344,7 @@ export default function DashboardPage() {
           </section>
 
           {/* Upload + Transaction Chart */}
-          <section className="space-y-4">
+          <section className="space-y-4" id="ingestion-engine">
             <SectionHeader 
               title="Ingestion Engine & Cash Flow Dynamics" 
               subtitle="Secure statement parsing and daily inflow vs outflow curves" 
