@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     ML_SYNTHETIC_TRAINING_ROWS: int = 1200
     ML_RANDOM_SEED: int = 42
 
+    FRAUD_MODEL_DIR: str = "app/ml/fraud_artifacts"
+    FRAUD_SCORE_THRESHOLD_MEDIUM: float = 0.35
+    FRAUD_SCORE_THRESHOLD_HIGH: float = 0.60
+    FRAUD_SCORE_THRESHOLD_CRITICAL: float = 0.80
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

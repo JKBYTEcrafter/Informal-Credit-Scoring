@@ -291,3 +291,115 @@ export type AdvancedSummaryResponse = {
   key_insights: BehavioralInsightItem[];
   generated_at: string;
 };
+
+// ============================================================
+// Sprint 4 Types — Fraud Intelligence
+// ============================================================
+export type FraudRiskLevel = "Low Risk" | "Medium Risk" | "High Risk" | "Critical Risk";
+
+export type FraudScoreResponse = {
+  user_id: number;
+  fraud_probability: number;
+  risk_level: FraudRiskLevel;
+  anomaly_score: number;
+  confidence_score: number;
+  top_risk_factors: string[];
+  model_version: string;
+  model_name: string;
+  generated_at: string;
+};
+
+export type FraudAlertItem = {
+  id: number;
+  alert_type: string;
+  severity: "Critical" | "High" | "Medium" | "Low";
+  description: string;
+  risk_score: number;
+  generated_at: string;
+};
+
+export type FraudAlertsResponse = {
+  user_id: number;
+  alerts: FraudAlertItem[];
+  total_count: number;
+  critical_count: number;
+  high_count: number;
+};
+
+export type RiskEventItem = {
+  id: number;
+  event_type: string;
+  event_score: number;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
+export type RiskEventsResponse = {
+  user_id: number;
+  events: RiskEventItem[];
+  total_count: number;
+};
+
+export type BehavioralRiskItem = {
+  indicator: string;
+  score: number;
+  risk_level: "Critical" | "High" | "Medium" | "Low";
+  description: string;
+  readable_label: string;
+};
+
+export type BehavioralRiskResponse = {
+  user_id: number;
+  overall_risk_score: number;
+  risk_level: FraudRiskLevel;
+  indicators: BehavioralRiskItem[];
+  generated_at: string;
+};
+
+export type AnomalyDataPoint = {
+  date: string;
+  anomaly_score: number;
+  transaction_count: number;
+  total_amount: number;
+  is_anomalous: boolean;
+};
+
+export type AnomalyAnalysisResponse = {
+  user_id: number;
+  anomaly_points: AnomalyDataPoint[];
+  overall_anomaly_score: number;
+  anomalous_day_count: number;
+  peak_anomaly_date: string | null;
+  generated_at: string;
+};
+
+export type FraudFeatureContribution = {
+  feature: string;
+  readable_label: string;
+  contribution: number;
+  feature_value: number;
+  impact: "high_risk" | "medium_risk" | "low_risk";
+  explanation: string;
+};
+
+export type FraudExplainabilityResponse = {
+  user_id: number;
+  fraud_probability: number;
+  base_probability: number;
+  feature_contributions: FraudFeatureContribution[];
+  top_risk_factors: string[];
+  anomaly_reasoning: string[];
+  generated_at: string;
+};
+
+export type FraudSummaryResponse = {
+  user_id: number;
+  fraud_probability: number;
+  risk_level: FraudRiskLevel;
+  active_alerts: number;
+  critical_alerts: number;
+  risk_events_count: number;
+  overall_anomaly_score: number;
+  top_risk_factors: string[];
+  generated_at: string;
+};

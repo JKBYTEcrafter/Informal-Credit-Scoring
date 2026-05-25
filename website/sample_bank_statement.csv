@@ -1,0 +1,25 @@
+amount,type,merchant,category,timestamp,description
+24500,credit,Upwork Freelance Escrow,Salary,2026-01-05 10:00:00+00:00,Monthly UI Design Freelance Payout
+8000,debit,Mutual Fund SIP Auto-Debit,Savings,2026-01-07 09:30:00+00:00,Monthly Investment SIP
+6500,debit,Housing Society Rent,Rent,2026-01-08 14:15:00+00:00,Monthly House Rent
+1250,debit,Metro SmartCard Recharge,Transport,2026-01-10 08:45:00+00:00,Local Commute Metro Card
+1850,debit,Reliance Fresh Retail,Food,2026-01-12 18:20:00+00:00,Weekly Groceries Inflow
+350,debit,Airtel Broadband,Utilities,2026-01-14 11:00:00+00:00,Wifi Monthly Internet Recharge
+28000,credit,Fiverr Gig Sales,Salary,2026-02-05 10:30:00+00:00,Consulting Payout
+9000,debit,Mutual Fund SIP Auto-Debit,Savings,2026-02-07 09:30:00+00:00,Monthly Investment SIP
+6500,debit,Housing Society Rent,Rent,2026-02-08 14:10:00+00:00,Monthly House Rent
+1300,debit,Metro SmartCard Recharge,Transport,2026-02-10 08:50:00+00:00,Local Commute Metro Card
+2100,debit,Reliance Fresh Retail,Food,2026-02-13 19:10:00+00:00,Weekly Groceries Inflow
+450,debit,Zomato Foods,Food,2026-02-16 21:00:00+00:00,Dinner Outflow
+26000,credit,Upwork Freelance Escrow,Salary,2026-03-05 10:15:00+00:00,Monthly UI Design Freelance Payout
+8000,debit,Mutual Fund SIP Auto-Debit,Savings,2026-03-07 09:30:00+00:00,Monthly Investment SIP
+6500,debit,Housing Society Rent,Rent,2026-03-08 14:05:00+00:00,Monthly House Rent
+1150,debit,Metro SmartCard Recharge,Transport,2026-03-10 08:35:00+00:00,Local Commute Metro Card
+1950,debit,Reliance Fresh Retail,Food,2026-03-12 18:00:00+00:00,Weekly Groceries Inflow
+500,debit,Airtel Mobile Prepaid,Utilities,2026-03-15 12:00:00+00:00,Mobile Plan Recharge
+25500,credit,Fiverr Gig Sales,Salary,2026-04-05 10:00:00+00:00,Consulting Payout
+8000,debit,Mutual Fund SIP Auto-Debit,Savings,2026-04-07 09:30:00+00:00,Monthly Investment SIP
+6500,debit,Housing Society Rent,Rent,2026-04-08 14:15:00+00:00,Monthly House Rent
+1200,debit,Metro SmartCard Recharge,Transport,2026-04-10 08:45:00+00:00,Local Commute Metro Card
+2200,debit,Reliance Fresh Retail,Food,2026-04-13 18:30:00+00:00,Weekly Groceries Inflow
+950,debit,Tata Power Utility,Utilities,2026-04-18 10:00:00+00:00,Electricity Monthly Inflow

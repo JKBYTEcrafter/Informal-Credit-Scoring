@@ -66,11 +66,16 @@ def init_db() -> None:
     """
     from app.models import (  # noqa: F401
         behavioral_insight,
+        behavioral_risk_profile,
         credit_score,
         financial_feature,
         financial_health_report,
+        fraud_alert,
+        fraud_score,
         recommendation,
+        risk_event,
         transaction,
         user,
     )
     Base.metadata.create_all(bind=engine)
+

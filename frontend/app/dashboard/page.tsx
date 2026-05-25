@@ -1,411 +1,217 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useState, useCallback } from "react";
+import {
+  CreditCard,
+  HeartPulse,
+  Receipt,
+  Brain,
+  BarChart2,
+  ShieldAlert,
+  ArrowRight,
+} from "lucide-react";
 
-import { AdvancedSummaryBanner } from "@/components/AdvancedSummaryBanner";
-import { AIExplanationPanel } from "@/components/AIExplanationPanel";
-import { AIFinancialStory } from "@/components/AIFinancialStory";
-import { AppShell } from "@/components/AppShell";
-import { BehavioralInsightsPanel } from "@/components/BehavioralInsightsPanel";
-import { CSVUpload } from "@/components/CSVUpload";
 import { CreditScoreCard } from "@/components/CreditScoreCard";
 import { DashboardSummaryCards } from "@/components/DashboardSummaryCards";
-import { FeatureImportanceChart } from "@/components/FeatureImportanceChart";
-import { FinancialHealthMeter } from "@/components/FinancialHealthMeter";
-import { FinancialHealthRadar } from "@/components/FinancialHealthRadar";
-import { ModelMetricsPanel } from "@/components/ModelMetricsPanel";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { RecommendationFeed } from "@/components/RecommendationFeed";
-import { RiskEvolutionChart } from "@/components/RiskEvolutionChart";
 import { RiskGauge } from "@/components/RiskGauge";
-import { SHAPWaterfallChart } from "@/components/SHAPWaterfallChart";
-import { SpendingAnalyticsCharts } from "@/components/SpendingAnalyticsCharts";
-import { TransactionChart } from "@/components/TransactionChart";
-import { TransactionsTable } from "@/components/TransactionsTable";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchDashboardSummary } from "@/services/dashboard";
-import {
-  fetchAdvancedSummary,
-  fetchBehavioralAnalysis,
-  fetchCreditScore,
-  fetchExplainability,
-  fetchFinancialHealth,
-  fetchFinancialStory,
-  fetchModelMetrics,
-  fetchRecommendations,
-  fetchRiskAnalysis,
-  fetchRiskTrends,
-} from "@/services/intelligence";
+import { fetchCreditScore } from "@/services/intelligence";
 import { fetchTransactions } from "@/services/transactions";
-import type {
-  AdvancedSummaryResponse,
-  BehavioralAnalysisResponse,
-  CreditScoreResponse,
-  DashboardSummary,
-  ExplainabilityResponse,
-  FinancialHealthResponse,
-  FinancialStoryResponse,
-  ModelMetricsResponse,
-  RecommendationsResponse,
-  RiskAnalysisResponse,
-  RiskTrendsResponse,
-  Transaction,
-} from "@/utils/types";
+import type { CreditScoreResponse, DashboardSummary, Transaction } from "@/utils/types";
 
-// ---- Premium Corporate Section Header ----
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <div className="mb-4 border-l-4 border-indigo-500 pl-4 py-0.5">
-      <h2 className="text-base font-bold text-white tracking-tight">{title}</h2>
-      {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
-    </div>
-  );
-}
-
-// ---- Premium Glassmorphic Panel Card ----
-function Panel({
-  children,
-  className = "",
+// Helper for nav cards
+function NavCard({
+  title,
+  description,
+  href,
+  icon: Icon,
+  isNew,
 }: {
-  children: React.ReactNode;
-  className?: string;
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  isNew?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-2xl border border-slate-800/50 bg-[#0d1220]/60 p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-700/60 ${className}`}
+    <Link
+      href={href}
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${
+        isNew
+          ? "border-red-500/30 bg-[#0d1220]/60 hover:border-red-500/60 shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+          : "border-slate-800/50 bg-[#0d1220]/60 hover:border-indigo-500/50 hover:bg-slate-800/80"
+      }`}
     >
-      {children}
-    </div>
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+            isNew ? "bg-red-500/10 text-red-400" : "bg-indigo-500/10 text-indigo-400"
+          } transition-transform group-hover:scale-110`}
+        >
+          <Icon size={24} />
+        </div>
+        {isNew && (
+          <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400 uppercase tracking-wider">
+            New Module
+          </span>
+        )}
+      </div>
+      <div className="mt-6">
+        <h3 className={`text-lg font-bold ${isNew ? "text-red-100" : "text-slate-100"}`}>
+          {title}
+        </h3>
+        <p className="mt-2 text-sm text-slate-400 leading-relaxed">{description}</p>
+      </div>
+      <div className="mt-6 flex items-center text-sm font-semibold text-slate-300 transition-colors group-hover:text-white">
+        Explore <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
+      </div>
+    </Link>
   );
 }
 
-export default function DashboardPage() {
+export default function OverviewPage() {
   const { user } = useAuth();
-
-  // Dashboard state variables
+  
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [creditScore, setCreditScore] = useState<CreditScoreResponse | null>(null);
-  const [riskAnalysis, setRiskAnalysis] = useState<RiskAnalysisResponse | null>(null);
-  const [financialHealth, setFinancialHealth] = useState<FinancialHealthResponse | null>(null);
-  const [modelMetrics, setModelMetrics] = useState<ModelMetricsResponse | null>(null);
-
-  // Advanced explainable AI state
-  const [explainability, setExplainability] = useState<ExplainabilityResponse | null>(null);
-  const [recommendations, setRecommendations] = useState<RecommendationsResponse | null>(null);
-  const [behavioral, setBehavioral] = useState<BehavioralAnalysisResponse | null>(null);
-  const [riskTrends, setRiskTrends] = useState<RiskTrendsResponse | null>(null);
-  const [financialStory, setFinancialStory] = useState<FinancialStoryResponse | null>(null);
-  const [advancedSummary, setAdvancedSummary] = useState<AdvancedSummaryResponse | null>(null);
-
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadDashboard = useCallback(async () => {
-    if (!user?.id) {
-      setIsLoading(false);
-      return;
-    }
-
+  const loadData = useCallback(async () => {
+    if (!user?.id) return;
     setIsLoading(true);
-    setError(null);
-
+    
     try {
-      // Fetch Core financial metrics
-      const [
-        summaryRes,
-        transactionRes,
-        creditScoreRes,
-        riskAnalysisRes,
-        financialHealthRes,
-        modelMetricsRes,
-      ] = await Promise.all([
+      const [summaryRes, creditRes, txRes] = await Promise.allSettled([
         fetchDashboardSummary(),
-        fetchTransactions(),
         fetchCreditScore(user.id),
-        fetchRiskAnalysis(user.id),
-        fetchFinancialHealth(user.id),
-        fetchModelMetrics(),
+        fetchTransactions()
       ]);
-
-      setSummary(summaryRes);
-      setTransactions(transactionRes);
-      setCreditScore(creditScoreRes);
-      setRiskAnalysis(riskAnalysisRes);
-      setFinancialHealth(financialHealthRes);
-      setModelMetrics(modelMetricsRes);
-
-      // Fetch advanced algorithmic indicators
-      const [
-        explainabilityRes,
-        recommendationsRes,
-        behavioralRes,
-        riskTrendsRes,
-        storyRes,
-        advancedRes,
-      ] = await Promise.allSettled([
-        fetchExplainability(user.id),
-        fetchRecommendations(user.id),
-        fetchBehavioralAnalysis(user.id),
-        fetchRiskTrends(user.id),
-        fetchFinancialStory(user.id),
-        fetchAdvancedSummary(user.id),
-      ]);
-
-      if (explainabilityRes.status === "fulfilled") setExplainability(explainabilityRes.value);
-      if (recommendationsRes.status === "fulfilled") setRecommendations(recommendationsRes.value);
-      if (behavioralRes.status === "fulfilled") setBehavioral(behavioralRes.value);
-      if (riskTrendsRes.status === "fulfilled") setRiskTrends(riskTrendsRes.value);
-      if (storyRes.status === "fulfilled") setFinancialStory(storyRes.value);
-      if (advancedRes.status === "fulfilled") setAdvancedSummary(advancedRes.value);
-    } catch {
-      setError("Unable to load dashboard data. Please try again.");
+      
+      if (summaryRes.status === "fulfilled") setSummary(summaryRes.value);
+      if (creditRes.status === "fulfilled") setCreditScore(creditRes.value);
+      if (txRes.status === "fulfilled") setTransactions(txRes.value);
     } finally {
       setIsLoading(false);
     }
   }, [user?.id]);
 
   useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard]);
+    void loadData();
+  }, [loadData]);
+
+  const today = new Date().toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <ProtectedRoute>
-      <AppShell>
-        <div className="flex flex-col gap-8 text-slate-100">
-          
-          {/* Dashboard Premium Title Block */}
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-800/60 pb-6">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
-                Enterprise Credit Intelligence Suite
+    <div className="flex flex-col gap-8">
+      {/* Welcome Header */}
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-800/60 pb-6">
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
+            Enterprise Credit Intelligence Suite
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white mt-2">
+            Welcome back, {user?.name}
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            {today} • Here's your financial intelligence overview.
+          </p>
+        </div>
+      </div>
+
+      {/* Empty State / Upload Prompt */}
+      {!isLoading && transactions.length === 0 && (
+        <div className="overflow-hidden rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-slate-900/50 to-indigo-950/40 p-6 md:p-8 shadow-2xl relative">
+          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none" />
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-2 max-w-3xl">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400 border border-amber-500/20">
+                ⚠️ Awaiting Statement Upload
               </div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-white mt-2">
-                Financial Intelligence Dashboard
-              </h1>
-              <p className="text-sm text-slate-400 mt-1">
-                Real-time explainable credit scoring, transactional analytics, and algorithmic recommendation feeds.
+              <h2 className="text-xl font-bold text-white tracking-tight">
+                Assessment calculated on heuristic baseline (Score: 300)
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                To compute a credible, highly accurate alternative credit intelligence profile using our advanced machine learning models, 
+                please ingest transactional data by uploading your bank statement in the Transactions module.
               </p>
             </div>
-            {user && (
-              <div className="flex items-center gap-2 rounded-lg bg-slate-900/60 border border-slate-800 px-4 py-2 text-sm text-slate-400">
-                <span>Welcome back,</span>
-                <span className="font-semibold text-white">{user.name}</span>
-              </div>
-            )}
+            <Link
+              href="/dashboard/transactions"
+              className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-6 py-3 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 hover:scale-[1.02]"
+            >
+              <Receipt size={18} />
+              Go to Transactions
+            </Link>
           </div>
-
-          {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 shadow-md">
-              {error}
-            </div>
-          )}
-
-          {/* Action Required Banner when database is empty */}
-          {!isLoading && transactions.length === 0 && (
-            <div className="overflow-hidden rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-slate-900/50 to-indigo-950/40 p-6 md:p-8 shadow-2xl relative">
-              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none" />
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div className="space-y-2 max-w-3xl">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400 border border-amber-500/20">
-                    ⚠️ Awaiting Statement Upload
-                  </div>
-                  <h2 className="text-xl font-bold text-white tracking-tight">
-                    Assessment calculated on heuristic baseline (Score: 300)
-                  </h2>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    To compute a credible, highly accurate alternative credit intelligence profile using our advanced machine learning models, 
-                    please ingest transactional data by uploading your bank statement below. 
-                    This will automatically build your 6-dimension health radar, generate custom spender profiles, and write your AI financial narrative.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    document.getElementById("ingestion-engine")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-6 py-3 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 hover:scale-[1.02]"
-                >
-                  🚀 Ingest Bank Statement
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* AI Intelligence Summary Banner */}
-          <section>
-            <AdvancedSummaryBanner summary={advancedSummary} isLoading={isLoading} />
-          </section>
-
-          {/* Core Credit Assessment */}
-          <section className="space-y-6">
-            <SectionHeader 
-              title="Core Credit Assessment" 
-              subtitle="Real-time credit score analysis and parsed statement metrics" 
-            />
-            <DashboardSummaryCards summary={summary} isLoading={isLoading} />
-
-            <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-              <Panel>
-                <CreditScoreCard creditScore={creditScore} isLoading={isLoading} />
-              </Panel>
-              <Panel>
-                <RiskGauge creditScore={creditScore} isLoading={isLoading} />
-              </Panel>
-            </div>
-          </section>
-
-          {/* SHAP Explainability + AI Financial Story */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Explainable AI (XAI) Engine" 
-              subtitle="SHAP feature attribution parameters and automated narrative insights" 
-            />
-            <div className="grid gap-6 xl:grid-cols-2">
-              <Panel>
-                <h3 className="mb-4 text-sm font-semibold text-slate-200">
-                  SHAP Feature Contribution Analysis
-                </h3>
-                <p className="mb-4 text-xs text-slate-500">
-                  Each bar shows how much a feature pushed your score above or below the expected baseline.
-                </p>
-                <SHAPWaterfallChart
-                  shapValues={explainability?.shap_values ?? []}
-                  baseScore={explainability?.base_score ?? 600}
-                  finalScore={explainability?.credit_score ?? creditScore?.score ?? 600}
-                  isLoading={isLoading}
-                />
-              </Panel>
-              <Panel>
-                <h3 className="mb-4 text-sm font-semibold text-slate-200">AI Financial Narrative</h3>
-                <AIFinancialStory story={financialStory} isLoading={isLoading} />
-              </Panel>
-            </div>
-          </section>
-
-          {/* Financial Health 6-Dimension Radar */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Multi-Dimensional Health Index" 
-              subtitle="Six pillars of financial health and historical risk trajectories" 
-            />
-            <div className="grid gap-6 xl:grid-cols-[400px_1fr]">
-              <Panel>
-                <h3 className="mb-5 text-sm font-semibold text-slate-200">
-                  Health Dimensions & Benchmarks
-                </h3>
-                <FinancialHealthRadar
-                  healthReport={advancedSummary?.health_report ?? null}
-                  isLoading={isLoading}
-                />
-              </Panel>
-              <Panel>
-                <h3 className="mb-4 text-sm font-semibold text-slate-200">
-                  Risk Score Evolution
-                </h3>
-                <RiskEvolutionChart riskTrends={riskTrends} isLoading={isLoading} />
-
-                {/* Explanations panel below the chart */}
-                <div className="mt-6">
-                  <AIExplanationPanel
-                    riskAnalysis={riskAnalysis}
-                    explanations={creditScore?.explanations ?? []}
-                    isLoading={isLoading}
-                  />
-                </div>
-              </Panel>
-            </div>
-          </section>
-
-          {/* Behavioral Analysis + Recommendations */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Behavioral Intelligence & Recommendations" 
-              subtitle="Algorithmic spender profiling and priority-ranked recommendations" 
-            />
-            <div className="grid gap-6 xl:grid-cols-2">
-              <Panel>
-                <h3 className="mb-4 text-sm font-semibold text-slate-200">
-                  Behavioral Analysis & Spender Profile
-                </h3>
-                <BehavioralInsightsPanel behavioral={behavioral} isLoading={isLoading} />
-              </Panel>
-              <Panel>
-                <h3 className="mb-4 text-sm font-semibold text-slate-200">
-                  Personalized Financial Recommendations
-                </h3>
-                <RecommendationFeed
-                  recommendations={recommendations?.recommendations ?? []}
-                  highPriorityCount={recommendations?.high_priority_count ?? 0}
-                  isLoading={isLoading}
-                />
-              </Panel>
-            </div>
-          </section>
-
-          {/* Upload + Transaction Chart */}
-          <section className="space-y-4" id="ingestion-engine">
-            <SectionHeader 
-              title="Ingestion Engine & Cash Flow Dynamics" 
-              subtitle="Secure statement parsing and daily inflow vs outflow curves" 
-            />
-            <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
-              <Panel>
-                <CSVUpload onUploadComplete={loadDashboard} />
-              </Panel>
-              <Panel>
-                <TransactionChart summary={summary} isLoading={isLoading} />
-              </Panel>
-            </div>
-          </section>
-
-          {/* Financial Health Meter + Spending Analytics */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Interactive Spending Intelligence" 
-              subtitle="Category distributions and transactional indicators" 
-            />
-            <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
-              <Panel>
-                <FinancialHealthMeter health={financialHealth} isLoading={isLoading} />
-              </Panel>
-              <div className="rounded-2xl border border-slate-800/50 bg-[#0d1220]/60">
-                <SpendingAnalyticsCharts health={financialHealth} isLoading={isLoading} />
-              </div>
-            </div>
-          </section>
-
-          {/* Feature Importance + Model Metrics + MLOps */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Model Performance & MLOps Analytics" 
-              subtitle="Global feature importance and training diagnostics" 
-            />
-            <div className="grid gap-6 xl:grid-cols-2">
-              <Panel>
-                <FeatureImportanceChart
-                  importance={creditScore?.feature_importance ?? []}
-                  isLoading={isLoading}
-                />
-              </Panel>
-              <Panel>
-                <ModelMetricsPanel metrics={modelMetrics} isLoading={isLoading} />
-              </Panel>
-            </div>
-          </section>
-
-          {/* Transactions Table */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Ingested Transactions Ledger" 
-              subtitle="Fully categorized ledger from parsed statements" 
-            />
-            <Panel>
-              <TransactionsTable transactions={transactions} isLoading={isLoading} />
-            </Panel>
-          </section>
         </div>
-      </AppShell>
-    </ProtectedRoute>
+      )}
+
+      {/* Summary KPIs */}
+      <section>
+        <h2 className="mb-4 text-base font-bold text-white tracking-tight border-l-4 border-indigo-500 pl-4 py-0.5">
+          Core Financial KPIs
+        </h2>
+        <DashboardSummaryCards summary={summary} isLoading={isLoading} />
+      </section>
+
+      {/* Credit Overview */}
+      <section className="grid gap-6 xl:grid-cols-[1fr_380px]">
+        <div className="rounded-2xl border border-slate-800/50 bg-[#0d1220]/60 p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-700/60">
+          <CreditScoreCard creditScore={creditScore} isLoading={isLoading} />
+        </div>
+        <div className="rounded-2xl border border-slate-800/50 bg-[#0d1220]/60 p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-700/60">
+          <RiskGauge creditScore={creditScore} isLoading={isLoading} />
+        </div>
+      </section>
+
+      {/* Navigation Modules */}
+      <section>
+        <h2 className="mb-4 text-base font-bold text-white tracking-tight border-l-4 border-indigo-500 pl-4 py-0.5">
+          Intelligence Modules
+        </h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <NavCard
+            title="Fraud Intelligence"
+            description="Real-time behavioral anomaly detection, transaction risk scoring, and fraud explainability."
+            href="/dashboard/fraud"
+            icon={ShieldAlert}
+            isNew
+          />
+          <NavCard
+            title="Credit Intelligence"
+            description="Deep dive into your ML-generated credit score and SHAP feature importance."
+            href="/dashboard/credit"
+            icon={CreditCard}
+          />
+          <NavCard
+            title="Financial Health"
+            description="6-dimensional health radar, stability metrics, and historical risk evolution."
+            href="/dashboard/health"
+            icon={HeartPulse}
+          />
+          <NavCard
+            title="Transactions"
+            description="Data ingestion engine, categorized ledger, and cash flow dynamics."
+            href="/dashboard/transactions"
+            icon={Receipt}
+          />
+          <NavCard
+            title="AI Insights"
+            description="Algorithmic spender profiling, AI narratives, and actionable recommendations."
+            href="/dashboard/insights"
+            icon={Brain}
+          />
+          <NavCard
+            title="ML Analytics"
+            description="Model performance metrics, validation scores, and global feature importance."
+            href="/dashboard/analytics"
+            icon={BarChart2}
+          />
+        </div>
+      </section>
+    </div>
   );
 }
