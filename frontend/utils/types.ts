@@ -403,3 +403,13 @@ export type FraudSummaryResponse = {
   top_risk_factors: string[];
   generated_at: string;
 };
+
+export type FraudModelMetricsResponse = {
+  model_version: string;
+  model_name: string;
+  trained_at: string | null;
+  n_estimators: number;
+  contamination: number;
+  status: string;
+  metrics: Record<string, unknown>;
+};

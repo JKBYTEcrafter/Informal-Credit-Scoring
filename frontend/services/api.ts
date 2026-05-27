@@ -11,6 +11,7 @@ export const api = axios.create({
   },
 });
 
+// ── Request interceptor: attach JWT ───────────────────────────────────────────
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = window.localStorage.getItem("aci_access_token");
@@ -20,3 +21,24 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// ── Response interceptor: handle 401 (token expired / invalid) ───────────────
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      typeof window !== "undefined" &&
+      error?.response?.status === 401
+    ) {
+      // Clear stale credentials
+      window.localStorage.removeItem("aci_access_token");
+      window.localStorage.removeItem("aci_user");
+      // Only redirect if not already on an auth page
+      const path = window.location.pathname;
+      if (!path.startsWith("/login") && !path.startsWith("/register")) {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);

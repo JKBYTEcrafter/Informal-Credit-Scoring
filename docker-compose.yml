@@ -23,11 +23,15 @@ services:
       JWT_SECRET_KEY: local-docker-change-me
       BACKEND_CORS_ORIGINS: http://localhost:3000
       AUTO_CREATE_TABLES: "True"
+      FRAUD_MODEL_DIR: /app/ml/fraud_artifacts
     ports:
       - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - fraud_model_artifacts:/app/ml/fraud_artifacts
+      - ml_model_artifacts:/app/ml/artifacts
 
   frontend:
     build:
@@ -41,3 +45,5 @@ services:
 
 volumes:
   postgres_data:
+  fraud_model_artifacts:
+  ml_model_artifacts:

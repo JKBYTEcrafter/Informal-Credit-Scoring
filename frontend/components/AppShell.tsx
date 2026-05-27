@@ -13,8 +13,8 @@ import {
   ShieldAlert,
   Shield,
   Menu,
-  X,
   LogOut,
+  Settings,
 } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -37,6 +37,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
+  // Initials (up to 2 chars)
+  const initials = user?.name
+    ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
+    : "U";
+
   return (
     <div className="flex h-screen bg-[#070a13] text-slate-100 font-sans antialiased overflow-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
       
@@ -54,6 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } flex`}
       >
+        {/* Logo */}
         <div className="flex h-16 shrink-0 items-center px-6 border-b border-slate-800/60">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]">
@@ -65,7 +71,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {/* Nav Items */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             
@@ -102,18 +109,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+
+          {/* Divider + Settings */}
+          <div className="pt-3 mt-3 border-t border-slate-800/60">
+            <Link
+              href="/dashboard/profile"
+              onClick={closeSidebar}
+              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
+                pathname === "/dashboard/profile"
+                  ? "bg-slate-800/60 text-white border-l-2 border-slate-500"
+                  : "text-slate-500 hover:bg-slate-800/50 hover:text-white"
+              }`}
+            >
+              <Settings
+                size={18}
+                className={pathname === "/dashboard/profile" ? "text-slate-300" : "text-slate-600 group-hover:text-slate-400"}
+              />
+              <span className="font-medium">Profile & Settings</span>
+            </Link>
+          </div>
         </nav>
 
+        {/* User Footer */}
         <div className="p-4 border-t border-slate-800/60">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-300">
-              {user?.name?.charAt(0).toUpperCase() || "U"}
+          <Link
+            href="/dashboard/profile"
+            onClick={closeSidebar}
+            className="flex items-center gap-3 mb-4 rounded-xl p-2 hover:bg-slate-800/40 transition-colors group"
+          >
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center font-bold text-sm text-white shadow-[0_0_10px_rgba(99,102,241,0.3)] shrink-0">
+              {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">{user?.name}</p>
+              <p className="truncate text-sm font-semibold text-white group-hover:text-indigo-200 transition-colors">{user?.name}</p>
               <p className="truncate text-xs text-slate-400">{user?.email}</p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={logout}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 border border-slate-800 py-2 text-xs font-semibold text-slate-300 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
@@ -139,6 +170,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Shield size={16} />
           </div>
           <span className="text-sm font-bold text-white">Credit Intelligence</span>
+
+          {/* Mobile avatar shortcut */}
+          <Link href="/dashboard/profile" className="ml-auto" onClick={closeSidebar}>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center font-bold text-xs text-white">
+              {initials}
+            </div>
+          </Link>
         </header>
 
         {/* Page Content */}

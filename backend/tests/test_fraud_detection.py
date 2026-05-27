@@ -4,6 +4,7 @@ from app.ml.fraud_detection.anomaly_detector import FraudAnomalyDetector, Anomal
 from app.ml.fraud_detection.fraud_scorer import FraudScoringEngine
 from app.ml.fraud_detection.fraud_explainer import FraudExplainabilityEngine
 from app.models.transaction import Transaction
+from datetime import datetime, timezone
 
 def test_fraud_features_empty_transactions():
     engineer = FraudFeatureEngineer()
@@ -18,9 +19,9 @@ def test_fraud_features_normal_profile():
     engineer = FraudFeatureEngineer()
     # Mocking some basic transactions
     transactions = [
-        Transaction(id=1, amount=10.0, transaction_type="debit", merchant="A", category="Food", timestamp="2026-05-20T12:00:00Z"),
-        Transaction(id=2, amount=20.0, transaction_type="debit", merchant="B", category="Transport", timestamp="2026-05-21T12:00:00Z"),
-        Transaction(id=3, amount=30.0, transaction_type="debit", merchant="C", category="Utilities", timestamp="2026-05-22T12:00:00Z")
+        Transaction(id=1, amount=10.0, transaction_type="debit", merchant="A", category="Food", timestamp=datetime(2026, 5, 20, 12, 0, tzinfo=timezone.utc)),
+        Transaction(id=2, amount=20.0, transaction_type="debit", merchant="B", category="Transport", timestamp=datetime(2026, 5, 21, 12, 0, tzinfo=timezone.utc)),
+        Transaction(id=3, amount=30.0, transaction_type="debit", merchant="C", category="Utilities", timestamp=datetime(2026, 5, 22, 12, 0, tzinfo=timezone.utc))
     ]
     result = engineer.generate(transactions)
     assert result.transaction_count == 3
@@ -65,10 +66,10 @@ def test_fraud_scorer_high_risk():
 def test_fraud_risk_level_classification():
     scorer = FraudScoringEngine()
     # Mocking anomaly result just to get risk level
-    assert scorer._determine_risk_level(0.2) == "Low Risk"
-    assert scorer._determine_risk_level(0.4) == "Medium Risk"
-    assert scorer._determine_risk_level(0.7) == "High Risk"
-    assert scorer._determine_risk_level(0.9) == "Critical Risk"
+    assert scorer._classify_risk(0.2) == "Low Risk"
+    assert scorer._classify_risk(0.4) == "Medium Risk"
+    assert scorer._classify_risk(0.7) == "High Risk"
+    assert scorer._classify_risk(0.9) == "Critical Risk"
 
 def test_anomaly_detection_fallback():
     detector = FraudAnomalyDetector()

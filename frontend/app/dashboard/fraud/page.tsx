@@ -100,6 +100,13 @@ export default function FraudPage() {
     void loadFraud();
   }, [loadFraud]);
 
+  // Detect zero-data state — all null after loading = no transactions uploaded
+  const noData =
+    !isLoading &&
+    fraudSummary === null &&
+    fraudScore === null &&
+    behavioralRisk === null;
+
   return (
     <div className="flex flex-col gap-8 text-slate-100 pb-10">
       {/* Page Header */}
@@ -118,7 +125,41 @@ export default function FraudPage() {
           Real-time behavioral anomaly detection, transaction risk scoring, and fraud explainability.
         </p>
       </div>
-      
+
+      {/* ── Empty State ──────────────────────────────────────────────────────── */}
+      {noData && (
+        <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-950/30 via-slate-900/50 to-amber-950/30 p-8 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400 border border-amber-500/20">
+                ⚠️ No Transaction Data Found
+              </div>
+              <h2 className="text-xl font-bold text-white">
+                Fraud engine requires transaction data
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                The fraud detection, anomaly analysis, and behavioral risk scoring engines all operate on
+                your uploaded transaction history. Upload your bank statement in the Transactions module 
+                to activate the full fraud intelligence suite.
+              </p>
+              <ul className="mt-2 space-y-1.5 text-xs text-slate-400">
+                {["Isolation Forest anomaly detection", "Behavioral risk indicator scoring", "Transaction velocity & pattern analysis", "Feature-level fraud explainability"].map((f) => (
+                  <li key={f} className="flex items-center gap-2">
+                    <span className="text-amber-500">◆</span> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a
+              href="/dashboard/transactions"
+              className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm px-6 py-3 shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all duration-300 hover:scale-[1.02]"
+            >
+              Upload Transactions →
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* 1. Summary Banner */}
       <section>
         <FraudSummaryBanner summary={fraudSummary} isLoading={isLoading} />

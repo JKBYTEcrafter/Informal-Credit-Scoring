@@ -20,6 +20,24 @@ type AuthContextValue = {
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+/** Decode a JWT payload (no signature verification — just for exp check). */
+function getTokenExpiry(token: string): number | null {
+  try {
+    const payloadB64 = token.split(".")[1];
+    if (!payloadB64) return null;
+    const decoded = JSON.parse(atob(payloadB64));
+    return typeof decoded.exp === "number" ? decoded.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+function isTokenExpired(token: string): boolean {
+  const exp = getTokenExpiry(token);
+  if (exp === null) return false; // can't determine — assume valid
+  return Date.now() / 1000 > exp;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -29,12 +47,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedToken = window.localStorage.getItem(TOKEN_KEY);
     const storedUser = window.localStorage.getItem(USER_KEY);
+
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser) as User);
+      // ── JWT expiry check ──────────────────────────────────────────────────
+      if (isTokenExpired(storedToken)) {
+        // Token is stale — clear everything and redirect
+        window.localStorage.removeItem(TOKEN_KEY);
+        window.localStorage.removeItem(USER_KEY);
+        router.push("/login");
+      } else {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser) as User);
+      }
     }
     setIsLoading(false);
-  }, []);
+  }, [router]);
 
   function persistSession(nextToken: string, nextUser: User) {
     window.localStorage.setItem(TOKEN_KEY, nextToken);
